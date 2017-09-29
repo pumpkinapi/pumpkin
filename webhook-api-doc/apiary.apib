@@ -1,0 +1,37 @@
+FORMAT: 1A
+HOST: http://replaceme.com/
+
+# hail-taxi-webhook
+
+Client should implement this service to use webhooks in the hail-taxi API.
+
+## Webhook [/webhook]
+
+### Accept a webhook call [POST]
+
+The server must reply with a 200 OK response as quickly as possible. 
+Any other non-200 response will cause the request to be made again after an unspecified period; usually moments later.
+
+Eventually, if no requests are successful within acceptable timeouts, 
+the operation will be cancelled and no further attempts will be made.
+
+Possible `status` values:
+ * pending
+ * booking_begin
+ * wait_accept
+ * client_accepted
+ * client_declined
+ * booking_confirmed
+
++ Request (application/json)
+
+        {
+            "event": "booking-status-change",
+            "published_at": "2017-09-05T09:32:45.231Z",
+            "data": {
+                "booking_id": "abc123",
+                "status": "booking_begin"
+            }
+        }
+
++ Response 200 (application/json)

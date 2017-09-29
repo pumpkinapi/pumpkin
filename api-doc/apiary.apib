@@ -1,0 +1,145 @@
+FORMAT: 1A
+HOST: http://replaceme.com/
+
+# hail-taxi
+
+Hail taxi is an API to hail a taxi
+
+## Request a taxi hail [/hail/bookings]
+
+### Create a New Booking [POST]
+
+The Client will be making the request with a simple set of information, 
+including Name, GPS Location, and Client info.
+
+The `webhooks` array is optional and for now can only contain `booking-status-change` event-key.
+It can be used to receive back-calls from this server when some conditions are met.
+
++ Request (application/json)
+
+        {
+            "customer_name": "John Smith",
+            "customer_phone_number": "+44 1623 661787",
+            "cash": true,
+            "origin": {
+                "lat": 37.77663,
+                "lng": -122.39227,
+                "address": "Mission Bay Boulevard South"
+            },
+            "destination": {
+                "lat": 37.771,
+                "lng": -122.39123,
+                "address": "Mission Bay Boulevard North"
+            },
+            "webhooks": [
+                {
+                    "event-key": "booking-status-change",
+                    "event-endpoint": "https://domain.com/path/to/webhook"
+                }
+            ]
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /hail/bookings/abc123
+
+    + Body
+
+            {
+                "booking_id": "abc123",
+                "status": "pending",
+                "taxi": {
+                    "vehicle": {
+                        "characteristics": [
+                            "air_con",
+                            "amex_accepted",
+                            "baby_seat",
+                            "bank_check_accepted",
+                            "bike_accepted",
+                            "credit_card_accepted",
+                            "dvd_player"
+                            "electronic_toll",
+                            "every_destination",
+                            "fresh_drink",
+                            "gps",
+                            "luxury"
+                            "nfc_cc_accepted",
+                            "pet_accepted",
+                            "special_need_vehicle",
+                            "tablet",
+                            "wifi"
+                        ],
+                        "color": "orange",
+                        "constructor": "Toyota",
+                        "model": "Prius",
+                        "nb_seats": 4,
+                        "boardhail_number": "20997"
+                    },
+                    "id": "9cf0ebfa-dd37-45c4-8a80-60db584535d8",
+                    "operator": "neotaxi",
+                    "rating": 4.65,
+                    "status": "free",
+                    "position": {
+                        "lat": 48.82689259,
+                        "lon": 2.34191983
+                    },
+                    "crowfly_distance": 4.29,
+                    "cost": 123
+                },
+                "meta": {
+                    "error": false,
+                    "message": "OK"
+                }
+            }
+
+## Request or Set a hail status [/hail/bookings/{booking_id}/status]
+
++ Parameters
+    + booking_id: abc123 (string) - ID of the booking returned by the `POST /hail/bookings` call
+
+### Request a hail status [GET]
+
+The API provides the Client with the option to 
+ * receive a webhook notifying of the booking, or 
+ * query the API to receive the status of the booking
+
+This endpoint allows the Client to query for the status.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "booking_id": "abc123",
+                "status": "pending",
+                "meta": {
+                    "error": false,
+                    "message": "OK"
+                }
+            }
+
+### Set a hail status [PUT]
+
+The Client can set the hail status to `client_accepted` to accept the hail.
+And to `client_declined` to decline the hail.
+
++ Request (application/json)
+
+            {
+                "status": "client_accepted"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "booking_id": "abc123",
+                "status": "client_accepted",
+                "meta": {
+                    "error": false,
+                    "message": "OK"
+                }
+            }
